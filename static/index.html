@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>File Converter</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                background-color: #f0f2f5;
+            }
+
+            main {
+                padding: 2rem;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                width: 300px;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                color: #333;
+                margin-bottom: 1rem;
+            }
+
+            #fileman {
+                display: none;
+            }
+
+            .file-label {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #007bff;
+                color: #fff;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                margin-bottom: 1rem;
+            }
+
+            .file-label:hover {
+                background-color: #0056b3;
+            }
+
+            .file-name {
+                font-size: 0.9rem;
+                color: #555;
+                margin-bottom: 1rem;
+            }
+
+            .convert-button {
+                padding: 10px 20px;
+                background-color: #28a745;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 1rem;
+                font-weight: bold;
+                transition: background-color 0.2s;
+            }
+
+            .convert-button:hover {
+                background-color: #218838;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>QTI 2.x to 3.0</h1>
+            <label class="file-label" for="fileman">Choose a file</label>
+            <input type="file" id="fileman" onchange="displayFileName()" />
+            <div class="file-name" id="fileName">No file selected</div>
+            <button class="convert-button" onclick="convert()">Convert</button>
+        </main>
+        <script>
+            const displayFileName = () => {
+                const fileInput = document.getElementById("fileman");
+                const fileNameDisplay = document.getElementById("fileName");
+                fileNameDisplay.textContent = fileInput.files[0]
+                    ? fileInput.files[0].name
+                    : "No file selected";
+            };
+
+            const convertBase64 = (file) => {
+                return new Promise((resolve, reject) => {
+                    const fileReader = new FileReader();
+                    fileReader.readAsDataURL(file);
+
+                    fileReader.onload = () => {
+                        const base64String = fileReader.result.split(",")[1];
+                        resolve(base64String);
+                    };
+
+                    fileReader.onerror = (error) => {
+                        reject(error);
+                    };
+                });
+            };
+
+            const downloadBase64File = (base64Data, fileName) => {
+                // Create a link element
+                const link = document.createElement("a");
+
+                // Set the link's href to the base64 data
+                link.href = `data:application/octet-stream;base64,${base64Data}`;
+
+                // Set the download attribute with the filename
+                link.download = fileName;
+
+                // Programmatically click the link to trigger the download
+                link.click();
+
+                // Optionally, remove the link from the DOM
+                link.remove();
+            };
+
+            const convert = async () => {
+                const file = fileman.files[0];
+                const base64 = await convertBase64(file);
+
+                const res = await fetch("/convert/", {
+                    method: "post",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        zipFile: base64,
+                    }),
+                });
+                const json = await res.json();
+
+                const converted_file_base64 = json.zipFile;
+                downloadBase64File(converted_file_base64, "qti3.zip");
+            };
+        </script>
+    </body>
+</html>
