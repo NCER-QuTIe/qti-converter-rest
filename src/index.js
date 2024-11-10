@@ -9,10 +9,11 @@ const app = express();
 const port = 3000;
 
 app.use(express.static("static"));
-app.use(bodyParser.json({ limit: "50mb" })); // Adjust limit as needed
+app.use(bodyParser.json({ limit: "50mb" }));
 
 app.post("/convert", async (req, res) => {
   try {
+    // Get the base64-encoded zip file from the request body
     const base64Zip = req.body.zipFile;
     if (!base64Zip) {
       res.status(400).json({ error: "No zip file provided" });
@@ -20,19 +21,39 @@ app.post("/convert", async (req, res) => {
     }
 
     // Decode the base64-encoded zip file
-    const zipBuffer = Buffer.from(base64Zip, "base64");
-    console.log(zipBuffer);
+    let zipBuffer;
+    try {
+      zipBuffer = Buffer.from(base64Zip, "base64");
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ error: "Failed to decode base64 zip file" });
+    }
 
+    // Create a readable stream from the zip buffer
     const readable = new Readable();
-    readable._read = () => {}; // _read is required but you can noop it
+    readable._read = () => {};
     readable.push(zipBuffer);
     readable.push(null);
 
-    const inputZipStream = readable.pipe(unzipper.Parse({ forceStream: true }));
+    // Unzip the stream
+    let inputZipStream;
+    try {
+      inputZipStream = readable.pipe(unzipper.Parse({ forceStream: true }));
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ error: "Failed to parse zip file" });
+    }
 
-    const outputBuffer = await convertPackageStream(inputZipStream);
+    // Convert the QTI package
+    let outputBuffer;
+    try {
+      outputBuffer = await convertPackageStream(inputZipStream);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error });
+    }
 
-    // // Encode the processed zip file to base64
+    // Get the base64-encoded zip file
     const processedZipBase64 = outputBuffer.toString("base64");
 
     res.json({ zipFile: processedZipBase64 });
