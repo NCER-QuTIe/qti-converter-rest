@@ -4,8 +4,7 @@
   "description": "Converts qti 2.x files to qti 3.0",
   "main": "src/index.ts",
   "scripts": {
-    "build": "cp -r src/* dist",
-    "start": "node dist/index.js",
+    "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
   "type": "module",
