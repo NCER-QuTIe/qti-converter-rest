@@ -24,8 +24,9 @@ app.post("/convert", async (req, res) => {
   try {
     zipBuffer = Buffer.from(base64Zip, "base64");
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     res.status(400).json({ error: "Failed to decode base64 zip file" });
+    return;
   }
 
   // Create a readable stream from the zip buffer
@@ -39,8 +40,9 @@ app.post("/convert", async (req, res) => {
   try {
     inputZipStream = readable.pipe(unzipper.Parse({ forceStream: true }));
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     res.status(400).json({ error: "Failed to parse zip file" });
+    return;
   }
 
   // Convert the QTI package
@@ -49,7 +51,8 @@ app.post("/convert", async (req, res) => {
     outputBuffer = await convertPackageStream(inputZipStream);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error });
+    res.status(400).json({ error: error.message });
+    return;
   }
 
   // Get the base64-encoded zip file
