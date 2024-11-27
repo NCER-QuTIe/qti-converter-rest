@@ -6,6 +6,8 @@ import { Readable } from "stream";
 import JSZip from "jszip";
 import unzipper from "unzipper";
 
+import { splitStimulus } from "./split-stimulus.js";
+
 const app = express();
 const port = 3000;
 
@@ -76,11 +78,15 @@ app.post("/convert", async (req, res) => {
           const content = await file.async("string");
           let modifiedContent;
           try {
+            // console.log(content);
             modifiedContent = splitStimulus(content);
             console.log("Successfuly split at the stimulus in " + filename);
           } catch (error) {
             modifiedContent = content;
-            console.log("Couldn't find the stimulus separtor " + filename);
+            console.log(
+              "Couldn't find the stimulus separtor " + filename,
+              error.message,
+            );
           }
           zip.file(filename, modifiedContent);
         } catch (error) {

@@ -19,7 +19,6 @@ export function splitStimulus(stimulus) {
       }
     }
     if (c2 == "~~") {
-      console.log(stack);
       start = stack[stack.length - 3];
       sep_start = stack[stack.length - 2];
     }
