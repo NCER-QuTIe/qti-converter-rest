@@ -61,7 +61,7 @@ app.post("/convert", async (req, res) => {
   // Load the zip buffer into JSZip
   let zip = new JSZip();
   try {
-    await zip.loadAsync(base64Zip, { base64: true });
+    await zip.loadAsync(processedZipBase64, { base64: true });
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ error: "Failed to parse zip file" });
@@ -111,7 +111,7 @@ app.post("/convert", async (req, res) => {
     return;
   }
 
-  res.json({ zipFile: processedZipBase64 });
+  res.json({ zipFile: modifiedZipBuffer.toString("base64") });
 });
 
 app.listen(port, () => {
