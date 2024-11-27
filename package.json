@@ -13,6 +13,7 @@
   "dependencies": {
     "@citolab/qti-convert": "^0.2.6",
     "express": "^4.21.1",
+    "jszip": "^3.10.1",
     "unzipper": "^0.12.3"
   },
   "devDependencies": {
