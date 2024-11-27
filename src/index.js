@@ -77,8 +77,10 @@ app.post("/convert", async (req, res) => {
           let modifiedContent;
           try {
             modifiedContent = splitStimulus(content);
+            console.log("Successfuly split at the stimulus in " + filename);
           } catch (error) {
             modifiedContent = content;
+            console.log("Couldn't find the stimulus separtor " + filename);
           }
           zip.file(filename, modifiedContent);
         } catch (error) {
