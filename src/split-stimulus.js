@@ -1,3 +1,5 @@
+const depth = 3;
+
 export function splitStimulus(stimulus) {
   let stack = [];
   let start = -1;
@@ -19,8 +21,8 @@ export function splitStimulus(stimulus) {
       }
     }
     if (c2 == "~~") {
-      start = stack[stack.length - 3];
-      sep_start = stack[stack.length - 2];
+      start = stack[stack.length - depth - 1];
+      sep_start = stack[stack.length - depth];
     }
   }
 
